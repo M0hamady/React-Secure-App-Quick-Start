@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import api from "../services/api"; // تأكد من أن هذا يستورد مثيل Axios الخاص بك
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "./NotificationContext"; // استيراد الـ NotificationContext
 
 // تعريف أنواع البيانات المستخدمة في الـ Context
 interface AuthContextProps {
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null); // الحالة لتخزين بيانات المستخدم
   const navigate = useNavigate(); // لاستخدام التنقل بين الصفحات
+  const { addNotification } = useNotification(); // استخدام NotificationContext
 
   // التحقق مما إذا كان هناك توكن مخزن في localStorage عند تحميل التطبيق
   useEffect(() => {
@@ -46,7 +48,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // دالة لتسجيل الدخول
   const login = async (username: string, password: string) => {
     try {
-      // إرسال طلب إلى الخادم لتسجيل الدخول
       const response = await api.post("/auth/users/login/", { username, password });
       const { access, refresh, user: userData } = response.data;
 
@@ -57,33 +58,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // تحديث حالة المستخدم في التطبيق
       setUser({ ...userData, accessToken: access });
-
+      addNotification({
+        message: "بيانات الدخول  صحيحة",
+        type: "success",
+      });
       // التنقل إلى لوحة التحكم بعد تسجيل الدخول
-      navigate("/dashboard");
+      navigate("/profile");
+
     } catch (error) {
-      console.error("فشل تسجيل الدخول:", error);
-      alert("بيانات الدخول غير صحيحة");
+      // بدلاً من console.error و alert، نستخدم NotificationContext
+      addNotification({
+        message: "بيانات الدخول غير صحيحة",
+        type: "error",
+      });
     }
   };
 
   // دالة للتسجيل
   const register = async (username: string, email: string, password: string) => {
     try {
-      // إرسال طلب إلى الخادم للتسجيل
-      await api.post("/auth/users/register/", { username, email, password });
-      navigate("/login"); // التنقل إلى صفحة تسجيل الدخول بعد التسجيل الناجح
+      const response = await api.post("/auth/users/register/", { username, email, password });
+      if (response.status === 201) {
+        addNotification({
+          message: "تم التسجيل بنجاح. يمكنك الآن تسجيل الدخول.",
+          type: "success",
+        });
+        navigate("/login");
+      }
     } catch (error) {
-      console.error("فشل التسجيل:", error);
-      alert("فشل التسجيل. يرجى المحاولة مرة أخرى.");
+      addNotification({
+        message: "فشل التسجيل. يرجى المحاولة مرة أخرى.",
+        type: "error",
+      });
     }
   };
 
   // دالة لتسجيل الخروج
   const logout = async () => {
     try {
-      // إرسال طلب إلى الخادم لتسجيل الخروج
-      await api.post("/auth/users/logout/", {
-        refreshToken: localStorage.getItem("refreshToken"), // إرسال التوكن لإبطال التوثيق
+      const response = await api.post("/auth/users/logout/", {
+        refreshToken: localStorage.getItem("refreshToken"),
       });
 
       // مسح بيانات المستخدم والتوكنات من localStorage
@@ -94,32 +108,52 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // التنقل إلى صفحة تسجيل الدخول بعد تسجيل الخروج
       navigate("/login");
+      addNotification({
+        message: "تم تسجيل الخروج بنجاح",
+        type: "success",
+      });
     } catch (error) {
-      console.error("فشل تسجيل الخروج:", error);
-      alert("فشل الخروج. يرجى المحاولة مرة أخرى.");
+      addNotification({
+        message: "فشل تسجيل الخروج. يرجى المحاولة مرة أخرى.",
+        type: "error",
+      });
     }
   };
 
   // دالة لإعادة تعيين كلمة المرور
   const resetPassword = async (token: string, newPassword: string) => {
     try {
-      // إرسال طلب إلى الخادم لتغيير كلمة المرور
-      await api.post("/auth/users/reset-password/", { token, newPassword });
-      alert("تم إعادة تعيين كلمة المرور بنجاح. يرجى تسجيل الدخول باستخدام كلمة المرور الجديدة.");
-      navigate("/login"); // التنقل إلى صفحة تسجيل الدخول بعد إعادة تعيين كلمة المرور
+      const response = await api.post("/auth/users/reset-password/", { token, newPassword });
+      if (response.status === 200) {
+        addNotification({
+          message: "تم إعادة تعيين كلمة المرور بنجاح. يرجى تسجيل الدخول باستخدام كلمة المرور الجديدة.",
+          type: "success",
+        });
+        navigate("/login");
+      }
     } catch (error) {
-      console.error("فشل إعادة تعيين كلمة المرور:", error);
-      alert("فشل إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى.");
+      addNotification({
+        message: "فشل إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى.",
+        type: "error",
+      });
     }
   };
 
   // دالة لإرسال رابط إعادة تعيين كلمة المرور
   const forgotPassword = async (email: string) => {
     try {
-      // إرسال طلب إلى الخادم لإرسال رابط إعادة تعيين كلمة المرور
-      await api.post("/auth/auth/forgot-password/", { email });
+      const response = await api.post("/auth/auth/forgot-password/", { email });
+      if (response.status === 200) {
+        addNotification({
+          message: "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.",
+          type: "success",
+        });
+      }
     } catch (error) {
-      console.error("فشل إرسال رابط إعادة تعيين كلمة المرور:", error);
+      addNotification({
+        message: "فشل إرسال رابط إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى.",
+        type: "error",
+      });
     }
   };
 
