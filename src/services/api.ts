@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create an Axios instance with a base URL
 const api = axios.create({
-  baseURL: "https://basic-auth-app-api-with-django-o88l4aoy4-m0hamadys-projects.vercel.app/api", // Replace with your backend URL
+  baseURL: "https://basic-auth-app-api-with-django-ypiumt8jv-m0hamadys-projects.vercel.app/api", // Replace with your backend URL
 });
 
 // Add request interceptor to include the access token in the Authorization header
@@ -39,7 +39,7 @@ api.interceptors.response.use(
 
       if (refreshToken) {
         try {
-          const response = await axios.post("https://basic-auth-app-api-with-django-o88l4aoy4-m0hamadys-projects.vercel.app/apiauth/users/token/refresh/", {
+          const response = await axios.post("https://basic-auth-app-api-with-django-ypiumt8jv-m0hamadys-projects.vercel.app/apiauth/users/token/refresh/", {
             refresh: refreshToken,
           });
 
