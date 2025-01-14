@@ -12,7 +12,6 @@ const Login: React.FC = () => {
     e.preventDefault();
     try {
         await login(username, password); // The `login` function navigates to the dashboard upon success.
-        navigate("/profile");
 
       } catch (error) {
         console.error("Login error:", error); // Handle any errors, although the `login` function has its own error handling.
