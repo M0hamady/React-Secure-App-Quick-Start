@@ -1,0 +1,19 @@
+@font-face {
+  font-family: 'Nico Moji';
+  src: url('./assets/fonts/nico-moji.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Luckiest Guy';
+  src: url('./assets/fonts/luckiest-guy.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Lora';
+  src: url('./assets/fonts/lora.woff2') format('woff2');
+}
+
+body {
+  background-color: #334B35;
+  font-family: 'Nico Moji', sans-serif;
+}

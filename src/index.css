@@ -1,0 +1,27 @@
+@font-face {
+  font-family: 'Nico Moji';
+  src: url('./assets/fonts/NicoMoji-Regular.ttf') format('woff2');
+}
+
+@font-face {
+  font-family: 'Luckiest Guy';
+  src: url('./assets/fonts/LuckiestGuy.ttf') format('woff2');
+}
+@font-face {
+  font-family: 'popines';
+  src: url('./assets/fonts/Poppins-Regular.ttf') format('woff2');
+}
+
+@font-face {
+  font-family: 'Lora';
+  src: url('./assets/fonts/Lora-VariableFont_wght.ttf') format('woff2');
+}
+
+body {
+  background-color: #334B35;
+  font-family: 'Lora', sans-serif;
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
